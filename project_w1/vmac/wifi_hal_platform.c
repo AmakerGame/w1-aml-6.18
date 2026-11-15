@@ -821,6 +821,14 @@ char *hif_type = "SDIO";
 #endif
 #ifdef CONFIG_MAC_SUPPORT
 extern u8 *wifi_get_mac(void);
+u8 *wifi_get_mac(void)
+{
+    /* no Amlogic vendor wifi platform on mainline; return invalid MAC
+     * so the caller falls back to wifimac.txt / W1 efuse / random */
+    static u8 mac[ETH_ALEN];
+    memset(mac, 0xff, ETH_ALEN);
+    return mac;
+}
 #endif
 extern void print_driver_version(void);
 

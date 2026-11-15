@@ -691,6 +691,14 @@ minstrel_free_sta(void *priv_sta)
     FREE(mi, "minstrel_sta_info");
 }
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 18, 0)
+/* removed from cfg80211; rate_flags=0 keeps all CCK rates eligible */
+static u32 ieee80211_chandef_rate_flags(struct cfg80211_chan_def *chandef)
+{
+    return 0;
+}
+#endif
+
 static void
 minstrel_init_cck_rates(struct minstrel_priv *mp)
 {

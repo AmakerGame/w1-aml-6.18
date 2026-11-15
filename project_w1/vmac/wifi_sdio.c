@@ -1322,6 +1322,10 @@ static void aml_customer_gpio_wlan_ctrl(int onoff)
 }
 
 extern void set_usb_wifi_power(int is_on);
+void set_usb_wifi_power(int is_on)
+{
+    /* USB power control not used on SDIO build */
+}
 extern unsigned char w1_wifi_sdio_access;
 #ifdef SDIO_BUILD_IN
 static void config_pmu_reg(bool is_power_on)

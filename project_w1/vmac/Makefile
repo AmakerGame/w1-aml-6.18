@@ -55,7 +55,7 @@ else
 CUR_DIR  := $(M)
 endif
 EXT_INCS := $(CUR_DIR)/../common
-INCS     := -I$(CUR_DIR) -I$(EXT_INCS)
+INCS     := -I$(CUR_DIR) -I$(CUR_DIR)/local_include -I$(EXT_INCS)
 KERNEL_SRC ?= $(KERNELDIR)
 #n=for normal mode,y=product mode
 #n=not support WIFI_RF when boot up. y=support WIFI_RF when boot up
@@ -106,8 +106,8 @@ EXTRA_CFLAGS += -DCONFIG_GXL
 EXTRA_CFLAGS += -DCONFIG_HAS_WAKELOCK
 #EXTRA_CFLAGS += -DCONFIG_RTC_ENABLE
 #EXTRA_CFLAGS += -DCONFIG_GPIO_RESET
-EXTRA_CFLAGS += -DUSE_GPIO_IRQ=1
-EXTRA_CFLAGS += -DUSE_SDIO_IRQ=0
+EXTRA_CFLAGS += -DUSE_GPIO_IRQ=0
+EXTRA_CFLAGS += -DUSE_SDIO_IRQ=1
 endif
 
 ifeq ($(CLANG_VERSION), r437112)
@@ -121,7 +121,10 @@ EXTRA_CFLAGS += -Wno-unused-but-set-variable
 endif
 
 ifneq ($(KERNELRELEASE),)
+$(info DBG KREL SDIO=$(CONFIG_SDIO) RF=$(CONFIG_WIFI_RF_SUPPORT) CFG=$(CONFIG_CFG80211) AML=$(CONFIG_AML_CFG80211))
 
+$(info DBG2 CFLAGS=$(EXTRA_CFLAGS))
+ccflags-y += $(EXTRA_CFLAGS)
 obj-m += aml_sdio.o
 aml_sdio-objs += w1_sdio/w1_sdio.o
 
@@ -144,6 +147,7 @@ DISCARD :=
 # regardless of which entry point was used to invoke the build.
 $(shell perl $(CUR_DIR)/create_version_file.pl 2>/dev/null)
 SRC_FILE := $(wildcard $(CUR_DIR)/*.c $(CUR_DIR)/rf_t9026/*.c $(CUR_DIR)/crypto/*.c)
+SRC_FILE := $(filter-out %.mod.c,$(SRC_FILE))
 TARGET_FILE = $(subst $(CUR_DIR)/,, $(SRC_FILE:%.c=%.o))
 
 ifneq ($(CONFIG_SDIO),)
@@ -209,7 +213,9 @@ EXTRA_CFLAGS += -DCONFIG_WFD
 endif
 
 endif#CONFIG_AML_CFG80211
+$(info DBG3 CFLAGS=$(EXTRA_CFLAGS))
 endif#CONFIG_CFG80211
+ccflags-y += $(EXTRA_CFLAGS)
 
 TARGET_LIST := $(filter-out $(DISCARD), $(TARGET_FILE))
 $(TARGET)-objs = $(TARGET_LIST)
