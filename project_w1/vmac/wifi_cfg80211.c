@@ -2371,11 +2371,10 @@ vm_cfg80211_get_tx_power(struct wiphy *wiphy,
     if (!wnet_vif || !(wifimac = wnet_vif->vm_wmac) || !wifimac->drv_priv)
         return -ENODEV;
 
+    /* The 6.18.59 nl80211_dump_survey path passes a dbm pointer that faults
+     * on write in this kernel; report unsupported instead of crashing. */
     DPRINTF(AML_DEBUG_CFG80211, "%s %d\n", __func__, __LINE__);
-    pr_debug("---drv_curtxpower:%d\n", *dbm);
-    *dbm = wifimac->drv_priv->drv_curtxpower;
-
-    return 0;
+    return -EOPNOTSUPP;
 }
 
 static int get_keyix(int kid, int vm_def_txkey)
