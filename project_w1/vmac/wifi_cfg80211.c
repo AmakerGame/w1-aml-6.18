@@ -1783,6 +1783,9 @@ static struct wireless_dev * vm_cfg80211_add_vif(struct wiphy *wiphy,
     int ret = -EOPNOTSUPP;
     struct net_device* ndev = NULL;
     struct wlan_net_vif *wnet_vif = wiphy_to_adapter(wiphy);
+
+if (!wnet_vif || !wnet_vif->vm_wmac)
+    return NULL;
     DPRINTF(AML_DEBUG_CFG80211, "%s %d <%s>\n", __func__, __LINE__, name);
 
     switch (type)
@@ -1833,6 +1836,9 @@ vm_cfg80211_del_vif(struct wiphy *wiphy,
 {
     struct net_device *ndev = wdev_to_ndev(wdev);
     struct wlan_net_vif *wnet_vif = wiphy_to_adapter(wiphy);
+
+if (!wnet_vif)
+    return -ENODEV;
     struct vm_wdev_priv *pwdev_priv = wdev_to_priv(wnet_vif->vm_wdev);
     int ret = 0;
 
@@ -1907,6 +1913,9 @@ vm_cfg80211_change_vif(struct wiphy *wiphy,
     enum nl80211_iftype old_nl80211type;
     enum wifi_mac_opmode networkType, oldnetworkType;
     struct wlan_net_vif *wnet_vif = wiphy_to_adapter(wiphy);
+
+if (!wnet_vif || !wnet_vif->vm_wmac)
+    return -ENODEV;
     struct wireless_dev *pwdev = wiphy_to_wdev(wiphy);
     int ret = 0;
     int retry;
@@ -2255,6 +2264,9 @@ vm_cfg80211_join_ibss(struct wiphy *wiphy,
     struct cfg80211_ibss_params *params)
 {
     struct wlan_net_vif *wnet_vif = wiphy_to_adapter(wiphy);
+
+if (!wnet_vif)
+    return -ENODEV;
     struct ieee80211_channel *chan;
 
 
@@ -2321,6 +2333,9 @@ static int
 vm_cfg80211_leave_ibss(struct wiphy *wiphy, struct net_device *dev)
 {
     struct wlan_net_vif *wnet_vif = wiphy_to_adapter(wiphy);
+
+if (!wnet_vif)
+    return -ENODEV;
     DPRINTF(AML_DEBUG_CFG80211, "<%s>:<%s>  %s++ %d\n",
             wnet_vif->vm_ndev->name,dev->name, __func__, __LINE__);
 
@@ -2472,6 +2487,9 @@ static  int vm_cfg80211_add_key(struct wiphy *wiphy, struct net_device *dev, int
     bool pairwise = (type == NL80211_KEYTYPE_PAIRWISE);
 #endif
     struct wlan_net_vif *wnet_vif = wiphy_to_adapter(wiphy);
+
+if (!wnet_vif || !wnet_vif->vm_wmac)
+    return -ENODEV;
     const struct key_params *lparams = params;
     const unsigned char *lmac_addr = mac_addr;
     int kid = key_index;
@@ -2690,6 +2708,9 @@ static int vm_cfg80211_del_key(struct wiphy *wiphy, struct net_device *dev, int 
     bool pairwise = (type == NL80211_KEYTYPE_PAIRWISE);
 #endif
     struct wlan_net_vif *wnet_vif = wiphy_to_adapter(wiphy);
+
+if (!wnet_vif || !wnet_vif->vm_wmac)
+    return -ENODEV;
     struct wifi_station *sta = NULL;
     int total_delay = 0;
     struct wifi_mac *wifimac = wnet_vif->vm_wmac;
@@ -2806,6 +2827,9 @@ static int vm_cfg80211_set_default_mgmt_key(struct wiphy *wiphy,
     struct net_device *dev = wdev_to_ndev(wdev);
 #endif
     struct wlan_net_vif *wnet_vif = wiphy_to_adapter(wiphy);
+
+if (!wnet_vif)
+    return -ENODEV;
 
     DPRINTF(AML_DEBUG_CFG80211, "%s<%s>, index:%d\n", __func__, dev->name, key_idx);
     wnet_vif->vm_def_mgmt_txkey = key_idx;
@@ -4348,6 +4372,9 @@ static int vm_cfg80211_start_ap(struct wiphy *wiphy, struct net_device *ndev,
 {
     int ret = 0;
     struct wlan_net_vif *wnet_vif = wiphy_to_adapter(wiphy);
+
+if (!wnet_vif || !wnet_vif->vm_wmac)
+    return -ENODEV;
     struct wifi_mac *wifimac = wnet_vif->vm_wmac;
     struct drv_private *drv_priv = drv_get_drv_priv();
 
@@ -4409,6 +4436,9 @@ static int vm_cfg80211_change_beacon(struct wiphy *wiphy,
 {
     int ret = 0, time_delay = 0;
     struct wlan_net_vif *wnet_vif = wiphy_to_adapter(wiphy);
+
+if (!wnet_vif || !wnet_vif->vm_wmac)
+    return -ENODEV;
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(6,7,0)
     struct cfg80211_beacon_data *info = &ap_update->beacon;
 #endif
@@ -4431,6 +4461,9 @@ static int vm_cfg80211_stop_ap(struct wiphy *wiphy, struct net_device *ndev, uns
 #endif
 {
     struct wlan_net_vif *wnet_vif = wiphy_to_adapter(wiphy);
+
+if (!wnet_vif || !wnet_vif->vm_wmac)
+    return -ENODEV;
     struct drv_private *drv_priv = drv_get_drv_priv();
     if (wnet_vif == wnet_vif->vm_wmac->drv_priv->drv_wnet_vif_table[NET80211_P2P_VMAC]) {
         wnet_vif->vm_p2p_support = 1;
@@ -4532,6 +4565,9 @@ vm_cfg80211_del_station(
 #endif
 {
     struct wlan_net_vif *wnet_vif = wiphy_to_adapter(wiphy);
+
+if (!wnet_vif)
+    return -ENODEV;
     #if LINUX_VERSION_CODE > KERNEL_VERSION(3,14,29)
         unsigned char *mac =  (unsigned char* )params->mac;
     #endif
@@ -4587,6 +4623,9 @@ vm_cfg80211_change_station(struct wiphy *wiphy, struct net_device *ndev,
 #endif
     int ret;
     struct wlan_net_vif *wnet_vif = wiphy_to_adapter(wiphy);
+
+if (!wnet_vif)
+    return -ENODEV;
     struct wifi_station *sta = NULL;
 
     DPRINTF(AML_DEBUG_CFG80211, "%s %d <%s>\n", __func__, __LINE__, ndev->name);
@@ -4688,6 +4727,9 @@ vm_cfg80211_get_station(struct wiphy *wiphy, struct net_device *dev,
 {
     int ret = 0;
     struct wlan_net_vif *wnet_vif = wiphy_to_adapter(wiphy);
+
+if (!wnet_vif || !wnet_vif->vm_wmac)
+    return -ENODEV;
     struct wifi_mac *wifimac = wnet_vif->vm_wmac;
     struct wifi_station *sta = NULL;
     unsigned char rate_index = 0;
@@ -4803,6 +4845,9 @@ vm_cfg80211_remain_on_channel(
     int target_channel;
     struct net_device *ndev = wdev_to_ndev(wdev);
     struct wlan_net_vif *wnet_vif = wiphy_to_adapter(wiphy);
+
+if (!wnet_vif || !wnet_vif->vm_wmac)
+    return -ENODEV;
     struct wifi_mac_p2p *p2p = wiphy_to_p2p(wiphy);
     struct wifi_mac *wifimac = wnet_vif->vm_wmac;
     //struct wireless_dev * sta_dev = wiphy_to_wdev(wiphy);
@@ -5614,6 +5659,9 @@ static int vm_cfg80211_mgmt_tx(struct wiphy *wiphy, struct wireless_dev *wdev,
     int ret = 0;
     struct wlan_net_vif *wnet_vif = wiphy_to_adapter(wiphy);
 
+if (!wnet_vif)
+    return -ENODEV;
+
     if ((wnet_vif->vm_opmode == WIFINET_M_STA) || (wnet_vif->vm_opmode == WIFINET_M_P2P_CLIENT) || (wnet_vif->vm_opmode == WIFINET_M_HOSTAP)) {
         if (wnet_vif->vm_p2p_support) {
             ret = vm_cfg80211_mgmt_tx_p2p(wiphy, wdev, params, cookie);
@@ -5644,6 +5692,9 @@ vm_cfg80211_set_txq_params(struct wiphy *wiphy, struct net_device *dev,
                             struct ieee80211_txq_params *params)
 {
     struct wlan_net_vif *wnet_vif = wiphy_to_adapter(wiphy);
+
+if (!wnet_vif || !wnet_vif->vm_wmac)
+    return -ENODEV;
     struct wifi_mac_wme_state *wme = &wnet_vif->vm_wmac->wm_wme[wnet_vif->wnet_vif_id];
     struct wmeParams *wmep = NULL;
     struct wifi_mac *wifimac = wnet_vif->vm_wmac;
@@ -5776,6 +5827,9 @@ vm_cfg80211_set_noack_map(struct wiphy *wiphy,struct net_device *dev,
 {
 
     struct wlan_net_vif *wnet_vif = wiphy_to_adapter(wiphy);
+
+if (!wnet_vif || !wnet_vif->vm_wmac)
+    return -ENODEV;
     struct wifi_mac *wifimac = wnet_vif->vm_wmac;
 
     pr_debug("enter %s\n", __func__);
@@ -5799,6 +5853,9 @@ vm_cfg80211_start_p2p_device(struct wiphy *wiphy,struct wireless_dev *wdev)
 {
 #ifdef CONFIG_P2P //TODO
     struct wlan_net_vif *wnet_vif = wiphy_to_adapter(wiphy);
+
+if (!wnet_vif)
+    return -ENODEV;
     struct vm_wdev_priv *pwdev_priv = wdev_to_priv(wdev);
     struct wifi_mac_p2p *p2p = &pwdev_priv->p2p;
 
@@ -5819,6 +5876,9 @@ vm_cfg80211_stop_p2p_device(struct wiphy *wiphy, struct wireless_dev *wdev)
 {
 #ifdef CONFIG_P2P //TODO
     struct wlan_net_vif *wnet_vif = wiphy_to_adapter(wiphy);
+
+if (!wnet_vif)
+    return;
     struct vm_wdev_priv *pwdev_priv = wdev_to_priv(wdev);
     struct wifi_mac_p2p *p2p = &pwdev_priv->p2p;
 
@@ -5939,6 +5999,9 @@ vm_cfg80211_set_monitor_channel(struct wiphy *wiphy,
 {
     struct wlan_net_vif *wnet_vif = wiphy_to_adapter(wiphy);
 
+if (!wnet_vif || !wnet_vif->vm_wmac)
+    return -ENODEV;
+
     if (chandef == NULL) {
         ERROR_DEBUG_OUT("chandef is null at\n");
         return -1;
@@ -5953,6 +6016,9 @@ vm_cfg80211_set_cqm_rssi_cfg(struct wiphy *wiphy,
 					 int rssi_thold, unsigned int rssi_hyst)
 {
     struct wlan_net_vif *wnet_vif = wiphy_to_adapter(wiphy);
+
+if (!wnet_vif || !wnet_vif->vm_wmac)
+    return -ENODEV;
 
     pr_debug("---enter %s\n", __func__);
     wnet_vif->vm_wmac->drv_priv->drv_config.cqm_rssi_thold = rssi_thold;
