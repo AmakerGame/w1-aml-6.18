@@ -2343,7 +2343,10 @@ vm_cfg80211_set_tx_power(struct wiphy *wiphy,
 #endif
 {
     struct wlan_net_vif *wnet_vif = wiphy_to_adapter(wiphy);
-    struct wifi_mac *wifimac = wnet_vif->vm_wmac;
+    struct wifi_mac *wifimac;
+
+    if (!wnet_vif || !(wifimac = wnet_vif->vm_wmac) || !wifimac->drv_priv)
+        return -ENODEV;
 
     DPRINTF(AML_DEBUG_CFG80211, "%s %d\n", __func__, __LINE__);
     pr_debug("---tx_power_setting: %d, dbm: %d\n", type, dbm);
@@ -2363,7 +2366,10 @@ vm_cfg80211_get_tx_power(struct wiphy *wiphy,
 #endif
 {
     struct wlan_net_vif *wnet_vif = wiphy_to_adapter(wiphy);
-    struct wifi_mac *wifimac = wnet_vif->vm_wmac;
+    struct wifi_mac *wifimac;
+
+    if (!wnet_vif || !(wifimac = wnet_vif->vm_wmac) || !wifimac->drv_priv)
+        return -ENODEV;
 
     DPRINTF(AML_DEBUG_CFG80211, "%s %d\n", __func__, __LINE__);
     pr_debug("---drv_curtxpower:%d\n", *dbm);
