@@ -1742,7 +1742,11 @@ void vm_cfg80211_indicate_sta_assoc(const struct wifi_station *sta)
     memset(&sinfo, 0, sizeof(struct station_info));
     sinfo.assoc_req_ies = sta->sta_assoc_req;
     sinfo.assoc_req_ies_len = sta->sta_assoc_req_ielen;
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,63)
     cfg80211_new_sta(wnet_vif->vm_wdev, sta->sta_macaddr, &sinfo, GFP_ATOMIC);
+#else
+    cfg80211_new_sta(dev, sta->sta_macaddr, &sinfo, GFP_ATOMIC);
+#endif
 
     //not ready for kernel=2.6.34
     //cfg80211_rx_mgmt(dev, freq, buf, len, gfp);
@@ -1758,7 +1762,11 @@ vm_cfg80211_indicate_sta_disassoc(const struct wifi_station *sta,
     struct net_device *dev = wnet_vif->vm_ndev;
 
     DPRINTF(AML_DEBUG_CFG80211, "%s %d <%s>\n", __func__, __LINE__, VMAC_DEV_NAME(wnet_vif));
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,63)
     cfg80211_del_sta(wnet_vif->vm_wdev, sta->sta_macaddr, GFP_ATOMIC);
+#else
+    cfg80211_del_sta(dev, sta->sta_macaddr, GFP_ATOMIC);
+#endif
     return;
 }
 
@@ -2471,7 +2479,7 @@ int softap_get_sta_num(struct wlan_net_vif *wnet_vif)
     WIFINET_NODE_UNLOCK(nt);
     return sta_num -1;
 }
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,63)
 static  int vm_cfg80211_add_key(struct wiphy *wiphy, struct wireless_dev *wdev, int link_id,
     u8 key_index, enum nl80211_key_type type, const u8 *mac_addr, struct key_params *params)
 #elif LINUX_VERSION_CODE < KERNEL_VERSION(5,15,0)
@@ -2482,7 +2490,7 @@ static  int vm_cfg80211_add_key(struct wiphy *wiphy, struct net_device *dev, int
         unsigned char key_index, bool pairwise, const unsigned char *mac_addr, struct key_params *params)
 #endif
 {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,63)
     struct net_device *dev = wdev_to_ndev(wdev);
     bool pairwise = (type == NL80211_KEYTYPE_PAIRWISE);
 #endif
@@ -2693,7 +2701,7 @@ vm_cfg80211_set_rekey_data(struct wiphy *wiphy,
     return -1;
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,63)
 static int vm_cfg80211_del_key(struct wiphy *wiphy, struct wireless_dev *wdev, int link_id,
     u8 key_index, enum nl80211_key_type type, const u8 *mac_addr)
 #elif LINUX_VERSION_CODE < KERNEL_VERSION(5,15,0)
@@ -2704,7 +2712,7 @@ static int vm_cfg80211_del_key(struct wiphy *wiphy, struct net_device *dev, int 
     unsigned char key_index, bool pairwise, const unsigned char *mac_addr)
 #endif
 {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,63)
     bool pairwise = (type == NL80211_KEYTYPE_PAIRWISE);
 #endif
     struct wlan_net_vif *wnet_vif = wiphy_to_adapter(wiphy);
@@ -2776,7 +2784,7 @@ exit:
     return 0;
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,63)
 static int
 vm_cfg80211_get_key(struct wiphy *wiphy, struct wireless_dev *wdev, int link_id,
     u8 key_index, enum nl80211_key_type type, const u8 *mac_addr,
@@ -2793,7 +2801,7 @@ vm_cfg80211_get_key(struct wiphy *wiphy, struct net_device *dev, int link_id,
     void *cookie,void (*callback)(void *cookie,struct key_params*))
 #endif
 {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,63)
     struct net_device *dev = wdev_to_ndev(wdev);
 #endif
     DPRINTF(AML_DEBUG_CFG80211, "%s %d <%s>\n", __func__, __LINE__, dev->name);
@@ -2812,7 +2820,7 @@ static int vm_cfg80211_config_default_key(struct wiphy *wiphy, struct net_device
     return 0;
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,63)
 static int vm_cfg80211_set_default_mgmt_key(struct wiphy *wiphy,
     struct wireless_dev *wdev, int link_id, u8 key_idx)
 #elif LINUX_VERSION_CODE < KERNEL_VERSION(5,15,0)
@@ -2823,7 +2831,7 @@ static int vm_cfg80211_set_default_mgmt_key(struct wiphy *wiphy,
     struct net_device *dev, int link_id, unsigned char key_idx)
 #endif
 {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,63)
     struct net_device *dev = wdev_to_ndev(wdev);
 #endif
     struct wlan_net_vif *wnet_vif = wiphy_to_adapter(wiphy);
@@ -4476,7 +4484,7 @@ if (!wnet_vif || !wnet_vif->vm_wmac)
     return 0;
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,63)
 static int
 vm_cfg80211_add_station(
     struct wiphy *wiphy, struct wireless_dev *wdev,
@@ -4493,7 +4501,7 @@ vm_cfg80211_add_station(
     unsigned char *mac, struct station_parameters *params)
 #endif
 {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,63)
     struct net_device *ndev = wdev_to_ndev(wdev);
 #endif
     DPRINTF(AML_DEBUG_CFG80211, "%s %d <%s>\n", __func__, __LINE__, ndev->name);
@@ -4547,7 +4555,7 @@ static void _del_station(void *arg, struct wifi_station *sta)
     }
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,63)
 static int
 vm_cfg80211_del_station(
     struct wiphy *wiphy,
@@ -4602,7 +4610,7 @@ if (!wnet_vif)
     return ret;
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,63)
 static int
 vm_cfg80211_change_station(struct wiphy *wiphy, struct wireless_dev *wdev,
     const unsigned char *mac, struct station_parameters *params)
@@ -4618,7 +4626,7 @@ vm_cfg80211_change_station(struct wiphy *wiphy, struct net_device *ndev,
     unsigned char *mac, struct station_parameters *params)
 #endif
 {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,63)
     struct net_device *ndev = wdev_to_ndev(wdev);
 #endif
     int ret;
@@ -4714,7 +4722,7 @@ static int vm_cfg80211_get_mcs(unsigned char code, unsigned char *flags)
 }
 
 static int
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,63)
 vm_cfg80211_get_station(struct wiphy *wiphy, struct wireless_dev *wdev,
         const u8 *mac, struct station_info *sinfo)
 #elif LINUX_VERSION_CODE > KERNEL_VERSION(3,14,29)
@@ -4805,12 +4813,18 @@ if (!wnet_vif || !wnet_vif->vm_wmac)
 
 
 static int
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,63)
 vm_cfg80211_dump_station(
     struct wiphy *wiphy, struct wireless_dev *wdev,
     int idx, unsigned char *mac, struct station_info *sinfo)
+#else
+vm_cfg80211_dump_station(
+    struct wiphy *wiphy, struct net_device *ndev,
+    int idx, unsigned char *mac, struct station_info *sinfo)
+#endif
 {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,0)
-    struct net_device *ndev = wdev_to_ndev(wdev);
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,63)
+    ndev = wdev_to_ndev(wdev);
 #endif
     DPRINTF(AML_DEBUG_CFG80211, "%s %d <%s>\n", __func__, __LINE__, ndev->name);
     return -ENOENT;
@@ -4824,7 +4838,7 @@ static void vm_cancel_remain_channel(struct wlan_net_vif *wnet_vif)
 }
 
 static int
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,63)
 vm_cfg80211_remain_on_channel(
     struct wiphy *wiphy,
     struct wireless_dev *wdev,
@@ -4903,7 +4917,7 @@ if (!wnet_vif || !wnet_vif->vm_wmac)
         vm_p2p_cancel_remain_channel(p2p);
     }
     memcpy(&p2p->remain_on_ch_channel, channel, sizeof(struct ieee80211_channel));
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,63)
     p2p->remain_on_ch_cookie = cookie ;
 #else
     p2p->remain_on_ch_cookie = *cookie ;
@@ -4939,7 +4953,7 @@ if (!wnet_vif || !wnet_vif->vm_wmac)
         wifi_mac_ChangeChannel(wifimac, p2p->work_channel, 0, wnet_vif->wnet_vif_id, wnet_vif->vm_opmode);
     }
     pr_debug("p2p_case: duration %d\n", restore_duration * 100);
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,63)
     cfg80211_ready_on_channel(p2p->wnet_vif->vm_wdev, cookie, channel,
 #else
     cfg80211_ready_on_channel(p2p->wnet_vif->vm_wdev, *cookie, channel,
@@ -5228,7 +5242,7 @@ _exit:
     return 0;
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,63)
 static int vm_cfg80211_mgmt_tx_p2p(struct wiphy *wiphy, struct wireless_dev *wdev,
     struct cfg80211_mgmt_tx_params *params, u64 cookie)
 #else
@@ -5272,7 +5286,7 @@ static int vm_cfg80211_mgmt_tx_p2p(struct wiphy *wiphy, struct wireless_dev *wde
     id = pwdev_priv->send_action_id++;
     if (id == 0)
         id = pwdev_priv->send_action_id++;
-#if LINUX_VERSION_CODE < KERNEL_VERSION(6,18,0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6,18,63)
     *cookie = id;
 #endif
 
@@ -5361,10 +5375,10 @@ static int vm_cfg80211_mgmt_tx_p2p(struct wiphy *wiphy, struct wireless_dev *wde
             case P2P_DEVDISC_REQ:
             case P2P_DEVDISC_RESP:
                 if (params->len <= P2P_MAX_ACTION_LEN) {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,63)
                     p2p->cookie = id;
 #else
-        #if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,0)
+        #if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,63)
             p2p->cookie = id;
 #else
             p2p->cookie = *cookie;
@@ -5399,7 +5413,7 @@ static int vm_cfg80211_mgmt_tx_p2p(struct wiphy *wiphy, struct wireless_dev *wde
         }
     } else {
         if (params->len <= P2P_MAX_ACTION_LEN) {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,63)
             p2p->cookie = cookie;
 #else
             p2p->cookie = *cookie;
@@ -5453,7 +5467,7 @@ static int vm_cfg80211_mgmt_tx_p2p(struct wiphy *wiphy, struct wireless_dev *wde
 
 exit:
     DPRINTF(AML_DEBUG_CFG80211,"%s %d, ack=%d\n", __func__,__LINE__, ack);
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,63)
     cfg80211_mgmt_tx_status(p2p->wnet_vif->vm_wdev, cookie, params->buf, params->len, ack, GFP_KERNEL);
 #else
     cfg80211_mgmt_tx_status(p2p->wnet_vif->vm_wdev, *cookie, params->buf, params->len, ack, GFP_KERNEL);
@@ -5461,7 +5475,7 @@ exit:
     return ret;
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,63)
 static int vm_cfg80211_mgmt_tx_sta(struct wiphy *wiphy, struct wireless_dev *wdev,
     struct cfg80211_mgmt_tx_params *params, u64 cookie)
 #else
@@ -5517,7 +5531,7 @@ static int vm_cfg80211_mgmt_tx_sta(struct wiphy *wiphy, struct wireless_dev *wde
     }
 
     if (params->len <= P2P_MAX_ACTION_LEN) {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,63)
         p2p->cookie = cookie;
 #else
         p2p->cookie = *cookie;
@@ -5639,7 +5653,7 @@ static int vm_cfg80211_mgmt_tx_sta(struct wiphy *wiphy, struct wireless_dev *wde
 exit:
     DPRINTF(AML_DEBUG_CFG80211,"%s %d, ack=%d\n", __func__,__LINE__, ack);
     if (!wnet_vif->vm_p2p->send_tx_status_flag) {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,63)
         cfg80211_mgmt_tx_status(wnet_vif->vm_wdev, cookie, params->buf, params->len, ack, GFP_KERNEL);
 #else
         cfg80211_mgmt_tx_status(wnet_vif->vm_wdev, *cookie, params->buf, params->len, ack, GFP_KERNEL);
@@ -5648,7 +5662,7 @@ exit:
     return ret;
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,63)
 static int vm_cfg80211_mgmt_tx(struct wiphy *wiphy, struct wireless_dev *wdev,
     struct cfg80211_mgmt_tx_params *params, u64 cookie)
 #else

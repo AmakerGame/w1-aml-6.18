@@ -19,6 +19,10 @@ namespace FW_NAME
 #endif
 #include "patch_fi_cmd.h"
 
+#ifndef FILTER_NUM4
+#define FILTER_NUM4 0
+#endif
+
 #if defined (HAL_FPGA_VER)
 struct platform_wifi_gpio amlhal_gpio =
 {
@@ -1037,6 +1041,10 @@ static int aml_insmod(void)
 
     aml_insmod_flag = 1;
 
+    /* Pin module: driver timers are not all torn down on exit and rmmod
+     * caused use-after-free panics. Keep refcount > 0 forever. */
+    __module_get(THIS_MODULE);
+
     pr_debug("%s(%d) start...\n",__func__, __LINE__);
     return 0;
 
@@ -1081,6 +1089,7 @@ static void aml_rmmod(void)
 
 
 MODULE_LICENSE("GPL");
+MODULE_DESCRIPTION("Amlogic W1 SDIO WiFi driver");
 module_init(aml_insmod);
 module_exit(aml_rmmod);
 

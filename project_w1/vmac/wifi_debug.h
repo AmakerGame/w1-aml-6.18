@@ -59,12 +59,15 @@ enum
 */
 //#define AML_DEBUG_LEVEL   AML_DEBUG_BWC         //40M
 #define AML_DEBUG_LEVEL (AML_DEBUG_STATE|AML_DEBUG_ERROR|AML_DEBUG_WARNING|AML_DEBUG_INIT|\
-                            AML_DEBUG_CFG80211)
+                            AML_DEBUG_CFG80211|AML_DEBUG_SCAN|AML_DEBUG_HAL|AML_DEBUG_CONNECT|AML_DEBUG_ACTION)
 
 
 #define DBG_HAL_THR_ENTER()          //pr_debug("---xman debug---:%s ++ \n",__FUNCTION__);
 #define DBG_HAL_THR_EXIT()           //pr_debug("---xman debug---:%s -- \n",__FUNCTION__);
 
+
+#undef pr_debug
+#define pr_debug(fmt, ...) pr_info(fmt, ##__VA_ARGS__)
 
 extern int aml_debug;
 extern unsigned long long g_dbg_info_enable;

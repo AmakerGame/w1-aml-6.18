@@ -1410,9 +1410,15 @@ EXPORT_SYMBOL(w1_set_wifi_bt_sdio_driver_bit);
 EXPORT_SYMBOL(w1_g_w1_hwif_sdio);
 EXPORT_SYMBOL(w1_g_w1_hif_ops);
 
+extern int wifi_dt_register(void);
+extern void wifi_dt_unregister(void);
+
 static int aml_w1_sdio_insmod(void)
 {
     int ret;
+    ret = wifi_dt_register();
+    if (ret)
+        pr_warn("wifi_dt_register failed: %d (wifi irq may not work)\n", ret);
     ret = aml_init_wlan_mem();
     if (ret) {
         PRINT("aml_init_wlan_mem err: %d \n", ret);
@@ -1420,12 +1426,15 @@ static int aml_w1_sdio_insmod(void)
     }
 
     w1_aml_w1_sdio_init();
+    /* Pin module: SDIO/HIF state is shared with vlsicomm; refuse unload. */
+    __module_get(THIS_MODULE);
     pr_debug("%s(%d) start...\n",__func__, __LINE__);
     return 0;
 }
 
 static void aml_w1_sdio_rmmod(void)
 {
+    wifi_dt_unregister();
     w1_aml_w1_sdio_exit();
     aml_deinit_wlan_mem();
 }

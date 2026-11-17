@@ -106,9 +106,12 @@ EXTRA_CFLAGS += -DCONFIG_GXL
 EXTRA_CFLAGS += -DCONFIG_HAS_WAKELOCK
 #EXTRA_CFLAGS += -DCONFIG_RTC_ENABLE
 #EXTRA_CFLAGS += -DCONFIG_GPIO_RESET
-EXTRA_CFLAGS += -DUSE_GPIO_IRQ=0
-EXTRA_CFLAGS += -DUSE_SDIO_IRQ=1
 endif
+
+# W1 on SC2: GPIO-line IRQ path (aml_wifi DT node), not SDIO in-band IRQ
+EXTRA_CFLAGS += -DUSE_GPIO_IRQ=1
+EXTRA_CFLAGS += -DUSE_SDIO_IRQ=0
+EXTRA_CFLAGS += -DCONFIG_HAS_WAKELOCK
 
 ifeq ($(CLANG_VERSION), r437112)
 EXTRA_CFLAGS += -Wno-unused-but-set-variable
@@ -121,15 +124,14 @@ EXTRA_CFLAGS += -Wno-unused-but-set-variable
 endif
 
 ifneq ($(KERNELRELEASE),)
-$(info DBG KREL SDIO=$(CONFIG_SDIO) RF=$(CONFIG_WIFI_RF_SUPPORT) CFG=$(CONFIG_CFG80211) AML=$(CONFIG_AML_CFG80211))
-
-$(info DBG2 CFLAGS=$(EXTRA_CFLAGS))
 ccflags-y += $(EXTRA_CFLAGS)
 obj-m += aml_sdio.o
 aml_sdio-objs += w1_sdio/w1_sdio.o
+aml_sdio-objs += wifi_dt.o
 
 obj-m += $(TARGET).o
 DISCARD :=
+DISCARD += wifi_dt.o
 # print_version.c defines print_driver_version(), which wifi_cfg80211.c,
 # wifi_hal_platform.c, wifi_iwpriv_cmd.c and wifi_cmd_func.c all declare
 # `extern` and call. It's a generated file, normally produced by this
@@ -213,7 +215,6 @@ EXTRA_CFLAGS += -DCONFIG_WFD
 endif
 
 endif#CONFIG_AML_CFG80211
-$(info DBG3 CFLAGS=$(EXTRA_CFLAGS))
 endif#CONFIG_CFG80211
 ccflags-y += $(EXTRA_CFLAGS)
 
