@@ -1364,7 +1364,7 @@ void wifi_mac_free_sta(struct wifi_station *sta)
     struct nsta_entry *del_nsta;
     unsigned char new_delete = 0;
 
-    del_nsta = (struct nsta_entry *)NET_MALLOC(sizeof(struct nsta_entry *),
+    del_nsta = (struct nsta_entry *)NET_MALLOC(sizeof(struct nsta_entry),
     GFP_ATOMIC, "del_nsta");
 
     if (del_nsta) {
@@ -1758,8 +1758,10 @@ void wifi_mac_sta_disassoc(void *arg, struct wifi_station *sta)
         pr_debug("<running> %s %d \n",__func__,__LINE__);
 
         wifi_mac_sta_disconnect(sta);
+        WIFINET_NODE_LOCK(nt);
         wifi_mac_rm_sta_from_wds_by_addr(nt, sta->sta_macaddr);
         list_del_init(&sta->sta_list);
+        WIFINET_NODE_UNLOCK(nt);
         wifi_mac_free_sta(sta);
     }
 }
@@ -1788,7 +1790,10 @@ static void wifi_mac_disassoc_cb(SYS_TYPE param1, SYS_TYPE param2, SYS_TYPE para
     pr_debug("<running> %s %d \n",__func__,__LINE__);
 
     wifi_mac_sta_disconnect(sta);
+    WIFINET_NODE_LOCK(nt);
     wifi_mac_rm_sta_from_wds_by_addr(nt, sta->sta_macaddr);
+    list_del_init(&sta->sta_list);
+    WIFINET_NODE_UNLOCK(nt);
 
     wifi_mac_free_sta(sta);
 }
