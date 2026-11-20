@@ -63,12 +63,8 @@ void concurrent_channel_restore(int target_channel, struct wlan_net_vif *wnet_vi
 
 void concurrent_channel_protection(struct wlan_net_vif *wnet_vif, int times)
 {
-    struct wifi_mac *wifimac = wnet_vif->vm_wmac;
-
-    DPRINTF(AML_DEBUG_CFG80211, "%s wm_p2p_connection_protect_period:%d\n", __func__, times);
-
-    wifimac->wm_p2p_connection_protect = 1;
-    wifimac->wm_p2p_connection_protect_period = jiffies + times * HZ / 1000;
+    /* X96 Max Plus Ultra: P2P unused; never block STA scans. */
+    (void)wnet_vif; (void)times;
 }
 
 static void concurrent_vsdb_do_channel_change_ex(SYS_TYPE param1,
