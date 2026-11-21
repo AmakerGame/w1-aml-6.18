@@ -4824,7 +4824,7 @@ vm_cfg80211_dump_station(
 #endif
 {
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,63)
-    ndev = wdev_to_ndev(wdev);
+    struct net_device *ndev = wdev_to_ndev(wdev);
 #endif
     DPRINTF(AML_DEBUG_CFG80211, "%s %d <%s>\n", __func__, __LINE__, ndev->name);
     return -ENOENT;
