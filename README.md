@@ -171,8 +171,10 @@ Compared with the upstream CoreELEC tree, this repository includes:
   `aml_sdio.mod.c` from being linked into `vlsicomm`.
 - Runtime stability fixes for RX-path station lifetime, TX-drop TID bounds,
   module refcount pinning, and cfg80211 NULL VIF guards.
-- Reduced compile-time debug level so normal operation does not flood
-  `dmesg`/journald.
+- Debug output stays at `KERN_DEBUG`: `opt_all.h` no longer remaps
+  `pr_debug` to `pr_info`, so `AML_OUTPUT`/`DPRINTF` messages are silent
+  by default (console loglevel and dynamic debug can still control them)
+  instead of flooding `dmesg`/journald as info-level spam.
 
 ## Runtime notes
 
