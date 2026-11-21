@@ -88,8 +88,10 @@ extern struct hal_private g_hal_priv;
 #endif
 /*End of HAL_FPGA_VER*/
 
+/* X96 Max Plus Ultra: keep real pr_debug (KERN_DEBUG) instead of remapping
+   to pr_info, so AML_OUTPUT/DPRINTF debug prints stay off console/journal. */
 #ifndef defined(NOT_AMLOGIC_PLATFORM)
-#define pr_debug(fmt, ...) pr_info(fmt, ##__VA_ARGS__)
+/* pr_debug intentionally not remapped */
 #else
 #define pr_debug(fmt, ...)
 #endif
