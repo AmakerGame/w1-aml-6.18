@@ -90,11 +90,10 @@ extern struct hal_private g_hal_priv;
 
 /* X96 Max Plus Ultra: keep real pr_debug (KERN_DEBUG) instead of remapping
    to pr_info, so AML_OUTPUT/DPRINTF debug prints stay off console/journal. */
-#ifndef defined(NOT_AMLOGIC_PLATFORM)
-/* pr_debug intentionally not remapped */
-#else
+#ifdef NOT_AMLOGIC_PLATFORM
 #define pr_debug(fmt, ...)
 #endif
+/* pr_debug intentionally not remapped to pr_info on X96 build */
 
 /*Start of HAL_SIM_VER*/
 #if defined (HAL_SIM_VER)
